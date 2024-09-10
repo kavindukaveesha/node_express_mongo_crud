@@ -1,32 +1,29 @@
 const express = require("express");
 const mongoose = require("mongoose");
-const product = require("./Models/Products.models.js");
+const Product = require("./Models/Products.models.js");
+const productRoute = require("./Routes/product.route.js");
 const app = express();
-app.use(express.json);
 const port = 3000;
 
-app.get("/", (req, res) => res.send("Hello World!"));
+// middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
-app.post("/api/products", async (req, res) => {
-  try {
-    const product = await product.create(req.body);
-    res.status(200).json(product);
-  } catch (error) {
-    res.status(500).json({ message: error.message });
-  }
-});
+// routes
+app.use("/api/products", productRoute);
 
-//conect db connection
+// Connect to MongoDB
 mongoose
   .connect(
     "mongodb+srv://kavindukaveesha16:oknpJP0gTNMsoS1J@cluster0.rvsdf.mongodb.net/Node-Api?retryWrites=true&w=majority&appName=Cluster0"
   )
   .then(() => {
-    console.log("Connected to databse");
-    app.listen(port, () =>
-      console.log(`Example app listening on port ${port}!`)
-    );
+    console.log("Connected to database");
+    app.listen(port, () => {
+      console.log(`Example app listening on port ${port}!`);
+    });
   })
-  .catch(() => {
-    console.log("Not Connected");
+  .catch((error) => {
+    // Log the error message for better debugging
+    console.error("Database connection failed:", error.message);
   });
